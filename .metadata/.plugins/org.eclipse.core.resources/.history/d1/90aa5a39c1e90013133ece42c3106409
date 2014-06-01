@@ -117,14 +117,11 @@ public class Servidor
 		{};
 	}
 	
-void parsing(String query,boolean esNuevo) //metodo parseo de querry
+void parsing(String query) //metodo parseo de querry
 {
-   
-	int i=0;
-	int inicio;
-	if(esNuevo)
-	{
-	inicio = query.indexOf("nombre");
+   int i=0;
+   int inicio;
+   inicio = query.indexOf("nombre");
    query = query.substring(inicio);
    for (String param : query.split("&")) {
        String pair[] = param.split("=");
@@ -137,7 +134,7 @@ void parsing(String query,boolean esNuevo) //metodo parseo de querry
    			System.out.println("-- " + result[j] + "--");
    		
    		escribir("contacto.pp", "nombre="+result[1]+"&ip="+result[3]+"&puerto="+result[5]);
-	}
+
    }
 
 class peticionWeb extends Thread
@@ -233,12 +230,12 @@ class peticionWeb extends Thread
                 		concadenado.append((char)pepe);
                 		//System.out.print("CONTENIDO ES: " + contenido + "END OF CONTENIDO");
                 		//System.out.print("\n---CONCADENADO---\n " + concadenado.toString() + "\n---END OF CONCADENADO---\n");
-                		System.out.print((char)pepe); //%EF%BF%BD%3
+                		System.out.print("--" + (char)pepe + "--"); //%EF%BF%BD%3
                 		checkEnd = concadenado.toString();
                 			if(checkEnd.endsWith("%EF%BF%BD%3")){ //si el string include la Ñ
                 				endFile=1;
                 				System.out.println("\nSALIR DEL WHILE!!!!!!!\n");
-                				parsing(checkEnd,true);
+                				parsing(checkEnd);
                     			//close socket?
                 			}
                 			}
