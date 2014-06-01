@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Agregar contacto</title>
+    <!-- CSS de Bootstrap -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet" media="screen">
+  </head>
+  <body> 
+    <!-- Librería jQuery requerida por los plugins de JavaScript -->
+    <script src="http://code.jquery.com/jquery.js"></script>
+ 
+    <!-- Todos los plugins JavaScript de Bootstrap (también puedes
+         incluir archivos JavaScript individuales de los únicos
+         plugins que utilices) -->
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+
+  <h1 class="text-center">Agregar contacto</h1>
+	
+	
+	<form method="POST" action="\contactos.htm">
+		<label>Nombre</label>
+		<input type="text" class="form-control" name="nombre" placeholder="ingrese el nombre del contacto">
+		<label>Direcci&oacute;n IP</label>
+		<input type="text" class="form-control" name="ip" placeholder="ingrese direcci&oacute;n IP">
+		<label>Puerto</label>
+		<input type="number" class="form-control" name="puerto" placeholder="ingrese puerto">
+		<input type="hidden" name="End" value="Ñ">
+	  <input type="submit" value="Guardar contacto">
+	</form>	
+
+  </body>
+</html>

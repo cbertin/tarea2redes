@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move package &apos;com.redes.tarea1&apos; to &apos;tarea2/src&apos;&#x0D;&#x0A;- Original project: &apos;tarea1redes&apos;&#x0D;&#x0A;- Destination element: &apos;tarea2/src&apos;&#x0D;&#x0A;- Original element: &apos;tarea1redes/src/com.redes.tarea1&apos;&#x0D;&#x0A;- Update references to refactored element" description="Move package" destination="=tarea2/src" element1="/src&lt;com.redes.tarea1" flags="589830" fragments="1" id="org.eclipse.jdt.ui.move" policy="org.eclipse.jdt.ui.movePackages" stamp="1401648423525" version="1.0"/>
+</session>
