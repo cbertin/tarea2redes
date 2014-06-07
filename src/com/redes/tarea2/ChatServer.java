@@ -3,6 +3,7 @@ package com.redes.tarea2;
 import java.net.ServerSocket;
 import java.net.Socket;
  
+import java.io.File;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -13,6 +14,30 @@ import java.util.Hashtable;
 public class ChatServer {
     private static int port = 1001; /* port to listen on */
  
+  //metodo que comprueba si existe un usuario con el nombre especificado
+  	public boolean existe_usuario(String nombre)
+  	{
+  		String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+  		String path_usuario=path_raiz+"\\dataserver\\users\\"+nombre;
+  		File directorio = new File(path_usuario);//variable file para verificar directorios
+  		if (!directorio.exists()) {
+              System.out.println("La ruta " + directorio.getAbsolutePath() + " no existe :(");
+              return false;
+  		}else {
+  			
+  			System.out.println("La ruta " + directorio.getAbsolutePath() + " existe :)");
+  			return true;
+  		}		
+  	} 
+  	
+  	//funcion que retorna el path a la carpeta del usuario(usuario debe existir)
+  	String path_usuario(String nombre)
+  	{
+  		String path=System.getProperty("user.dir")+"\\dataserver\\users\\"+nombre;
+  		return path;
+  	}
+    
+    
     public static void main (String[] args) throws IOException {
  
         ServerSocket server = null;
@@ -124,12 +149,14 @@ class ChatServerProtocol {
      * Process a message coming from the client
      */
     public String process(String msg) {
-        if (!isAuthenticated()) 
+    	System.out.println("El mensaje es "+msg);
+        if (!isAuthenticated())
             return authenticate(msg);
- 
+        	System.out.println("No entre a Autenticated");
         String[] msg_parts = msg.split(" ", 3);
         String msg_type = msg_parts[0];
- 
+        System.out.println("El mensaje parseado es "+msg_parts[0]);
+        System.out.println("El mensaje parseado es de tamaño "+msg_parts.length);
         if(msg_type.equals("MSG")) {
             if(msg_parts.length < 3) return msg_INVALID;
             if(sendMsg(msg_parts[1], msg_parts[2])) return msg_OK;
