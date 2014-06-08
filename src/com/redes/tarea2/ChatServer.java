@@ -3,7 +3,10 @@ package com.redes.tarea2;
 import java.net.ServerSocket;
 import java.net.Socket;
  
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -11,14 +14,15 @@ import java.io.PrintWriter;
  
 import java.util.Hashtable;
  
+
 public class ChatServer {
-    private static int port = 1001; /* port to listen on */
+    private static int port = 8080; /* port to listen on */
  
   //metodo que comprueba si existe un usuario con el nombre especificado
   	public boolean existe_usuario(String nombre)
   	{
   		String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
-  		String path_usuario=path_raiz+"\\dataserver\\users\\"+nombre;
+  		String path_usuario=path_raiz+"\\data\\users\\"+nombre;
   		File directorio = new File(path_usuario);//variable file para verificar directorios
   		if (!directorio.exists()) {
               System.out.println("La ruta " + directorio.getAbsolutePath() + " no existe :(");
@@ -37,9 +41,154 @@ public class ChatServer {
   		return path;
   	}
     
-    
+  //metodo que crea un usuario
+  	static void nuevo_usuario(String nick)
+  	{
+  		
+  		String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+  		path_raiz=path_raiz+"\\data\\users\\"+nick;
+  		File directorio = new File(path_raiz);
+  		directorio.mkdir();
+  		System.out.println(path_raiz+"\\contactos.pp");
+  		File archivo=new File(path_raiz+"\\contactos.pp");
+  		
+  		try {
+  		  // A partir del objeto File creamos el fichero físicamente
+  		  if (archivo.createNewFile())
+  		    System.out.println("El fichero se ha creado correctamente");
+  		  else
+  		    System.out.println("No ha podido ser creado el fichero");
+  		} catch (IOException ioe) {
+  		  ioe.printStackTrace();
+  		}
+  	}
+  
+  	//metodo que retorna la lista de contactos de un usuario
+  	static String contactos_usuario(String nick)
+  	{
+  	String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+  	path_raiz=path_raiz+"\\data\\users\\"+nick+"\\contactos.pp";
+  	return leerArchivo(path_raiz);
+  	}
+  	
+  	//retorna el contenido de un archivo como un string
+	static String leerArchivo(String path)
+	{
+		//Creamos un String que va a contener todo el texto del archivo
+		String texto="";
+		String contactos="";
+
+		try
+		{
+			//Creamos un archivo FileReader que obtiene lo que tenga el archivo
+			FileReader lector=new FileReader(path);
+
+			//El contenido de lector se guarda en un BufferedReader
+			BufferedReader contenido=new BufferedReader(lector);
+
+			//Con el siguiente ciclo extraemos todo el contenido del objeto "contenido" y lo mostramos
+			while((texto=contenido.readLine())!=null)
+			{
+				if(contactos.length()>1)
+				contactos=contactos+"\n"+texto;
+				else
+				contactos=contactos+texto;
+			}
+			contenido.close();
+		}
+
+		//Si se causa un error al leer cae aqui
+		catch(Exception e)
+		{
+			System.out.println("Error al leer");
+		}
+		return contactos;
+	}  	
+	
+    //metodo que retorna un String con los contactos del usuario contacto separados por espacio
+	public static String parsearContactos(String usuario)
+	{	
+		String contactos=ChatServer.contactos_usuario(usuario);
+	    //System.out.println("parseando el texto: "+contactos);
+		String listaContactos="";
+		String[] tokens = contactos.split("\n");
+		String[] subtokens;
+		for (int i = 0; i < tokens.length; i++)
+		{
+		    subtokens=tokens[i].split(" ");
+		    //System.out.println("El subtoken es: "+subtokens[0]);
+		    if(listaContactos.length()>1)
+		    listaContactos=listaContactos+" "+subtokens[0];
+		    else
+		    listaContactos=listaContactos+subtokens[0];
+		    }
+		//System.out.println("termine de parsear");
+		return listaContactos;
+	}
+	//Metodo que identifica si existe un chat entre dos usuarios, y de ser asi, retorna el nombre del chat
+	static String nombreChatUsuarios(String usuario1, String usuario2)
+	{
+		String contactos=ChatServer.contactos_usuario(usuario1);
+		String[] tokens = contactos.split("\n");
+		String[] subtokens;
+		for (int i = 0; i < tokens.length; i++)
+		{
+		    subtokens=tokens[i].split(" ");
+		    if(subtokens[0].compareTo(usuario2)==0)
+		    return subtokens[1];
+		    }
+		return null;
+		
+	}
+	
+	static boolean actualizarChat(String usuario1,String usuario2,String msg)
+	{
+		String nombreChat=nombreChatUsuarios(usuario1,usuario2);
+		
+		String path=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+	  	path=path+"\\data\\chats\\"+nombreChat+".pp";
+		
+		//Escritura
+		
+		try{
+		FileWriter w = new FileWriter(path,true);
+		BufferedWriter bw = new BufferedWriter(w);
+		PrintWriter wr = new PrintWriter(bw); 		
+		wr.append("\n"+usuario1+": "+msg); //concatenamos en el archivo sin borrar lo existente
+		
+		        //ahora cerramos los flujos de canales de datos, al cerrarlos el archivo quedará guardado con información escrita
+		
+		       //de no hacerlo no se escribirá nada en el archivo
+		wr.close();
+		bw.close();
+		}catch(IOException e){
+			return false;
+		};
+		return true;
+	}
+	
+	//metodo que retorna el chat entre la persona usuario1 y usuario2
+	static String chatUsuarios(String usuario1, String usuario2){
+		String path=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+  		String nombreChat=nombreChatUsuarios(usuario1, usuario2);
+  		if(nombreChat!=null){ 
+		path=path+"\\data\\chats\\"+nombreChat+".pp";
+		System.out.println(path);
+		return leerArchivo(path);
+		}
+		else 
+			return usuario1+usuario2;  
+			
+	}
+	
+	
     public static void main (String[] args) throws IOException {
- 
+    	
+    	//ChatServer.nuevo_usuario("seba");
+        //System.out.println(ChatServer.parsearContactos("celeste"));
+        System.out.println("chat\n"+chatUsuarios("juanca","celeste"));
+        actualizarChat("celeste", "juanca", "un dos tres probando probando????");
+        
         ServerSocket server = null;
         try {
             server = new ServerSocket(port); /* start listening on the port */
