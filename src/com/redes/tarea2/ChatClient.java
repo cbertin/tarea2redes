@@ -15,22 +15,37 @@ public class ChatClient {
     private static BufferedReader stdIn;
  
     private static String nick;
- 
+    static String contactos;
+    
     /**
      * Read in a nickname from stdin and attempt to authenticate with the 
      * server by sending a NICK command to @out. If the response from @in
      * is not equal to "OK" go back and read a nickname again
      */
     private static String getNick(BufferedReader in, 
-                                  PrintWriter out) throws IOException {
-        System.out.print("Enter your nick: ");
-        String msg = stdIn.readLine();
-        out.println("NICK " + msg);
-        String serverResponse = in.readLine();
-        if ("SERVER: OK".equals(serverResponse)) return msg;
-        System.out.println(serverResponse);
-        return getNick(in, out);
-    }
+            PrintWriter out) throws IOException {
+	System.out.print("Enter your nick: ");
+	String msg = stdIn.readLine(); //manda msg al server
+	String usuarioExiste = "Cargando contactos de " + msg;
+	out.println("NICK " + msg);
+	String serverResponse = in.readLine();
+	if ("SERVER: OK".equals(serverResponse)){
+		//el usuario no existe, return usuario para login
+		contactos = "0";
+		return msg; 
+	}
+	if ("SERVER: NICK IN USE".equals(serverResponse)) {        	
+		System.out.println("Usuario esta logueado en sistema");      	
+	}
+	if(serverResponse.startsWith("SERVER: NICK EN ARCHIVO"))
+	{
+		contactos = serverResponse.substring(24); //string con contactos sin parsear desde el server
+		return msg; //hace login y guarda contactos SIN PARSEAR en variable global
+	}
+	
+	System.out.println(serverResponse);
+	return getNick(in, out);
+}
  
     public static void main (String[] args) throws IOException {
  

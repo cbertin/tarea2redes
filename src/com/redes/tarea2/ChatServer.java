@@ -215,9 +215,10 @@ public class ChatServer {
 }
  
 class ChatServerProtocol {
-    private String nick;
+    private String nick; //usuario
     private ClientConn conn;
- 
+    private String contactos = "0";
+    
     /* a hash table from user nicks to the corresponding connections */
     private static Hashtable<String, ClientConn> nicks = 
         new Hashtable<String, ClientConn>();
@@ -227,6 +228,9 @@ class ChatServerProtocol {
     private static final String msg_SPECIFY_NICK = "SPECIFY NICK";
     private static final String msg_INVALID = "INVALID COMMAND";
     private static final String msg_SEND_FAILED = "FAILED TO SEND";
+    //private static final String msg_INVALID_RECEIVER = "NO EXISTE A QUIEN SE LE ENVIA MENSAJE";
+    private static final String msg_NICK_TIENE_CONTACTOS = "TIENE CONTACTOS";
+    private static final String msg_NICK_EN_ARCHIVO = "NICK EN ARCHIVO";
  
     /**
      * Adds a nick to the hash table 
@@ -235,9 +239,11 @@ class ChatServerProtocol {
     private static boolean add_nick(String nick, ClientConn c) {
         if (nicks.containsKey(nick)) {
             return false;
+            //mostrar lista contactos
         } else {
             nicks.put(nick, c);
             return true;
+            //crear usuario
         }
     }
  
@@ -263,19 +269,32 @@ class ChatServerProtocol {
      *  msg_NICK_IN_USE if the specified nick is already in use
      *  msg_SPECIFY_NICK if the message does not start with the NICK command 
      */
-    private String authenticate(String msg) {
+    private String authenticate(String msg) { //revisa si existe el nick, si no lo esta
         if(msg.startsWith("NICK")) {
             String tryNick = msg.substring(5);
-            if(add_nick(tryNick, this.conn)) {
-                log("Nick " + tryNick + " joined.");
-                this.nick = tryNick;
-                return msg_OK;
-            } else {
-                return msg_NICK_IN_USE;
+            
+            //revisar si tryNick ya existe en ARCHIVO lista de usuarios, si no existe, sigue igual, si existe
+            
+            if(usuario NO en archivo){
+            	if(add_nick(tryNick, this.conn)) {
+                    log("Nick " + tryNick + " joined.");
+                    this.nick = tryNick;
+                    //agregar usuario a archivo
+                    return msg_OK;
+                } 
+            	else{
+            		return msg_NICK_IN_USE;
+                }
             }
-        } else {
-            return msg_SPECIFY_NICK;
+            else{ //si usuario en archivo
+            	if(usuariotienecontactos){
+            		//guarda contactos en String contactos
+            	}	
+            	return msg_NICK_EN_ARCHIVO + contactos;
+            }
         }
+        else //mensaje no empieza con NICK o no hay nick
+        	return msg_SPECIFY_NICK;
     }
  
     /**
@@ -308,7 +327,12 @@ class ChatServerProtocol {
         System.out.println("El mensaje parseado es de tamaño "+msg_parts.length);
         if(msg_type.equals("MSG")) {
             if(msg_parts.length < 3) return msg_INVALID;
-            if(sendMsg(msg_parts[1], msg_parts[2])) return msg_OK;
+            if(sendMsg(msg_parts[1], msg_parts[2]))
+            	{
+            	//guarda en archivo el mensaje msg_parts[2] desde el usuario conectado a msg_parts[1]
+            	
+            	return msg_OK;
+            	}
             else return msg_SEND_FAILED;
         } else {
             return msg_INVALID;
@@ -344,7 +368,7 @@ class ClientConn implements Runnable {
              * sent back to the client */
             while ((msg = in.readLine()) != null) {
                 response = protocol.process(msg);
-                out.println("SERVER: " + response);
+                out.println("SERVER: " + response); //aqui se procesa el return de protocol, lo cual lee chatClient
             }
         } catch (IOException e) {
             System.err.println(e);
