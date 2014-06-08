@@ -19,7 +19,7 @@ public class ChatServer {
     private static int port = 8080; /* port to listen on */
  
   //metodo que comprueba si existe un usuario con el nombre especificado
-  	public boolean existe_usuario(String nombre)
+  	public static boolean existe_usuario(String nombre)
   	{
   		String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
   		String path_usuario=path_raiz+"\\data\\users\\"+nombre;
@@ -82,7 +82,7 @@ public class ChatServer {
 		{
 			//Creamos un archivo FileReader que obtiene lo que tenga el archivo
 			FileReader lector=new FileReader(path);
-
+			System.out.println("el path es: "+path);
 			//El contenido de lector se guarda en un BufferedReader
 			BufferedReader contenido=new BufferedReader(lector);
 
@@ -177,17 +177,74 @@ public class ChatServer {
 		return leerArchivo(path);
 		}
 		else 
-			return usuario1+usuario2;  
+			return "";  
 			
 	}
 	
+	static boolean crearChat(String usuario1,String usuario2)
+	{
+		String path_raiz=System.getProperty("user.dir");//obtenemos el path del directorio de trabajo
+		String pathU1=path_raiz+"\\data\\users\\"+usuario1+"\\contactos.pp";//path a la lista de contactos del usuario1
+		String pathU2=path_raiz+"\\data\\users\\"+usuario2+"\\contactos.pp";//path a la lista de contactos del usuari2
+		String pathChat=path_raiz+"\\data\\chats\\"+usuario1+usuario2+".pp";
+
+		
+		//Se crea el archibo del chat vacio
+		File directorio = new File(path_raiz);
+		directorio.mkdir();
+		System.out.println("Creando Chat"+pathChat);
+		File archivo=new File(pathChat);
+		
+		try {
+			// A partir del objeto File creamos el fichero físicamente
+			if (archivo.createNewFile())
+			System.out.println("El fichero se ha creado correctamente");
+			else
+			System.out.println("No ha podido ser creado el fichero");
+		} catch (IOException ioe) {
+			ioe.printStackTrace();
+		}
+
+		//Escritura
+
+		//para los contactos del usuario1
+		try{
+			FileWriter w1 = new FileWriter(pathU1,true);
+			BufferedWriter bw = new BufferedWriter(w1);
+			PrintWriter wr = new PrintWriter(bw);   
+			wr.append("\n"+usuario2+" "+usuario1+usuario2); //concatenamos en el archivo sin borrar lo existente
+			//ahora cerramos los flujos de canales de datos, al cerrarlos el archivo quedará guardado con información escrita
+			//de no hacerlo no se escribirá nada en el archivo
+			wr.close();
+			bw.close();
+		}catch(IOException e){
+			System.out.println("Error al actualizar la lista de contactos del usuario "+usuario1);
+			return false;
+		};
+
+		//para los contactos del usuario2
+		try{
+			FileWriter w2 = new FileWriter(pathU2,true);
+			BufferedWriter bw = new BufferedWriter(w2);
+			PrintWriter wr = new PrintWriter(bw);   
+			wr.append("\n"+usuario1+" "+usuario1+usuario2); //concatenamos en el archivo sin borrar lo existente
+			//ahora cerramos los flujos de canales de datos, al cerrarlos el archivo quedará guardado con información escrita
+			//de no hacerlo no se escribirá nada en el archivo
+			wr.close();
+			bw.close();
+		}catch(IOException e){
+			System.out.println("Error al actualizar la lista de contactos del usuario "+usuario2);
+			return false;
+		}; 
+		return true;
+	}
 	
     public static void main (String[] args) throws IOException {
     	
     	//ChatServer.nuevo_usuario("seba");
         //System.out.println(ChatServer.parsearContactos("celeste"));
-        System.out.println("chat\n"+chatUsuarios("juanca","celeste"));
-        actualizarChat("celeste", "juanca", "un dos tres probando probando????");
+        //System.out.println("chat\n"+chatUsuarios("juanca","celeste"));
+        //actualizarChat("celeste", "juanca", "un dos tres probando probando????");
         
         ServerSocket server = null;
         try {
@@ -231,7 +288,8 @@ class ChatServerProtocol {
     //private static final String msg_INVALID_RECEIVER = "NO EXISTE A QUIEN SE LE ENVIA MENSAJE";
     private static final String msg_NICK_TIENE_CONTACTOS = "TIENE CONTACTOS";
     private static final String msg_NICK_EN_ARCHIVO = "NICK EN ARCHIVO";
- 
+    private static final String msg_NICK_CREA_CHAT = "NICK CREA CHAT";
+    private static final String msg_CREATE_FAILED = "FAILED TO CREATE";
     /**
      * Adds a nick to the hash table 
      * returns false if the nick is already in the table, true otherwise
@@ -274,12 +332,11 @@ class ChatServerProtocol {
             String tryNick = msg.substring(5);
             
             //revisar si tryNick ya existe en ARCHIVO lista de usuarios, si no existe, sigue igual, si existe
-            
-            if(usuario NO en archivo){
+            if(!ChatServer.existe_usuario(tryNick)){
             	if(add_nick(tryNick, this.conn)) {
                     log("Nick " + tryNick + " joined.");
                     this.nick = tryNick;
-                    //agregar usuario a archivo
+                    ChatServer.nuevo_usuario(tryNick);//agregar usuario a archivo
                     return msg_OK;
                 } 
             	else{
@@ -287,9 +344,13 @@ class ChatServerProtocol {
                 }
             }
             else{ //si usuario en archivo
-            	if(usuariotienecontactos){
-            		//guarda contactos en String contactos
-            	}	
+            	if(add_nick(tryNick, this.conn)) {
+                    log("Nick " + tryNick + " joined.");
+                    this.nick = tryNick;
+                    
+                } 
+            	contactos = ChatServer.parsearContactos(tryNick);
+            	
             	return msg_NICK_EN_ARCHIVO + contactos;
             }
         }
@@ -325,18 +386,37 @@ class ChatServerProtocol {
         String msg_type = msg_parts[0];
         System.out.println("El mensaje parseado es "+msg_parts[0]);
         System.out.println("El mensaje parseado es de tamaño "+msg_parts.length);
-        if(msg_type.equals("MSG")) {
+        
+        if(msg_type.equals("MSG")) { //entra a seccion de enviar mensajes
+        	System.out.println("dentro de MSG");
+        	System.out.println("el parseo es: --" + msg_parts[0] + "- -" + msg_parts[1] + "- -" + msg_parts[2] + "--");
             if(msg_parts.length < 3) return msg_INVALID;
             if(sendMsg(msg_parts[1], msg_parts[2]))
             	{
-            	//guarda en archivo el mensaje msg_parts[2] desde el usuario conectado a msg_parts[1]
+            	System.out.println("dentro de revision de MSG");
+            	ChatServer.chatUsuarios(nick, msg_parts[1]);
+            	ChatServer.actualizarChat(nick, msg_parts[1],msg_parts[2]);//guarda en archivo el mensaje msg_parts[2] desde el usuario conectado a msg_parts[1]
             	
             	return msg_OK;
             	}
             else return msg_SEND_FAILED;
-        } else {
-            return msg_INVALID;
-        }
+        	} 
+        
+        	if(msg_type.equals("CRE")) { //entra a seccion de crear contacto de usuario
+        		System.out.println("dentro de CREATE");
+            	System.out.println("el parseo es: --" + msg_parts[0] + "- -" + msg_parts[1] + "- -" + msg_parts[2] + "--");
+            	if(msg_parts.length < 3) return msg_INVALID;
+            	
+            	if(ChatServer.crearChat(nick, msg_parts[1])){
+                	System.out.println("dentro de revision de CREATE");
+            		ChatServer.chatUsuarios(nick, msg_parts[1]);
+            	return msg_OK;
+            	}
+            	else
+            		return msg_CREATE_FAILED;
+        	}
+        	else
+        		return msg_INVALID;
     }
 }
  

@@ -1,2 +1,0 @@
-juanca juancaceleste
-seba celesteseba

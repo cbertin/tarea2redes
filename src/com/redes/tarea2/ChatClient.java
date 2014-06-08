@@ -23,7 +23,7 @@ public class ChatClient {
      * is not equal to "OK" go back and read a nickname again
      */
     private static String getNick(BufferedReader in, 
-            PrintWriter out) throws IOException {
+            PrintWriter out) throws IOException { //login nick
 	System.out.print("Enter your nick: ");
 	String msg = stdIn.readLine(); //manda msg al server
 	String usuarioExiste = "Cargando contactos de " + msg;
@@ -32,14 +32,19 @@ public class ChatClient {
 	if ("SERVER: OK".equals(serverResponse)){
 		//el usuario no existe, return usuario para login
 		contactos = "0";
+		//System.out.println("mensaje es " + msg);
 		return msg; 
 	}
 	if ("SERVER: NICK IN USE".equals(serverResponse)) {        	
 		System.out.println("Usuario esta logueado en sistema");      	
 	}
 	if(serverResponse.startsWith("SERVER: NICK EN ARCHIVO"))
-	{
-		contactos = serverResponse.substring(24); //string con contactos sin parsear desde el server
+	{ //return los contactos del usuario
+		
+		contactos = serverResponse.substring(23); //string con contactos sin parsear desde el server
+		System.out.println("los contactos de " + msg + " son " + contactos); //return de los contactos del usuario
+		System.out.println("OK");
+		//System.out.println("mensaje es " + msg);
 		return msg; //hace login y guarda contactos SIN PARSEAR en variable global
 	}
 	
