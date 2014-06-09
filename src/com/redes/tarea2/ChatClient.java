@@ -7,10 +7,11 @@ import java.io.PrintWriter;
  
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
  
 public class ChatClient {
     private static int port = 8080; //puerto
-    private static String host = "192.168.1.192"; //IP del host
+    public static String host; //IP del host
  
     private static BufferedReader stdIn;
  
@@ -55,7 +56,9 @@ public class ChatClient {
     public static void main (String[] args) throws IOException {
  
         Socket server = null;
- 
+        System.out.print("Ingrese IP : ");
+        Scanner input = new Scanner(System.in);
+        host = input.nextLine();
         try {
             server = new Socket(host, port);
         } catch (UnknownHostException e) {
