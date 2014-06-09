@@ -9,8 +9,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
  
 public class ChatClient {
-    private static int port = 8080; /* port to connect to */
-    private static String host = "localhost"; /* host to connect to */
+    private static int port = 8080; //puerto
+    private static String host = "192.168.1.192"; //IP del host
  
     private static BufferedReader stdIn;
  
@@ -24,7 +24,7 @@ public class ChatClient {
      */
     private static String getNick(BufferedReader in, 
             PrintWriter out) throws IOException { //login nick
-	System.out.print("Enter your nick: ");
+	System.out.print("Ingrese su nick: ");
 	String msg = stdIn.readLine(); //manda msg al server
 	String usuarioExiste = "Cargando contactos de " + msg;
 	out.println("NICK " + msg);

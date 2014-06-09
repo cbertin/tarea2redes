@@ -415,6 +415,10 @@ class ChatServerProtocol {
             	else
             		return msg_CREATE_FAILED;
         	}
+        	if(msg_type.equals("CTS"))
+            {
+             return ChatServer.parsearContactos(msg_parts[1]);
+            }
         	else
         		return msg_INVALID;
     }

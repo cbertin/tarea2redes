@@ -1,0 +1,43 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <script src="chat_example.js"></script>
+		<script type="text/javascript"
+    src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script>
+    $(document).ready(
+            function() {
+                setInterval(function() {
+                    var randomnumber = Math.floor(Math.random() * 100);
+                   $('#chat_box').val('I am getting refreshed every 2 seconds..! Random Number ==> '
+                                    + randomnumber);
+                            
+                }, 2000);
+            });
+</script>
+    </head>
+    <body>
+        <center>
+            <form id="name_form">
+                Name:
+                <input type=text id="name_input"
+                       style="width: 165px; margin: 2px" >
+                <input type="submit" id="connect_button" value="Connect"
+                       style="width: 70px; margin: 2px" >
+            </form>
+			
+            <textarea id="chat_box" readonly="readonly"
+                      style="width: 290px; height: 250px;
+                             margin: 2px; resize: none">
+							 AQUI ESTA VACIO! XD
+							 </textarea>
+
+            <form id="message_form">
+                <input type=text id="message_input"
+                       style="width: 220px; height: 18px; margin: 2px">
+                <input type="submit" id="send_button" value="Send"
+                       style="width: 60px; margin: 2px" >
+            </form>
+        </center>
+    </body>
+</html>
